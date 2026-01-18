@@ -14,7 +14,8 @@ from pypdf import PdfReader
 embedding_service = OpenAIEmbeddings(
     openai_api_key=settings.OPENROUTER_API_KEY,
     openai_api_base="https://openrouter.ai/api/v1",
-    model="openai/text-embedding-3-small"
+    model="openai/text-embedding-3-small",
+    tiktoken_model_name="text-embedding-3-small"
 )
 
 class IngestionService:
@@ -48,8 +49,8 @@ class IngestionService:
         if not doc:
             raise ValueError("Document not found")
         
-        doc.status = "processing"
-        await self.db.commit()
+        # doc.status = "processing" # Handled in API endpoint
+        # await self.db.commit()
 
         try:
             text = self.extract_text(doc.file_path, doc.filename)

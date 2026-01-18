@@ -44,6 +44,13 @@ async def upload_document(
     await db.refresh(db_obj)
     return db_obj
 
+from app.db.session import get_db, AsyncSessionLocal
+
+async def run_ingestion(document_id: int):
+    async with AsyncSessionLocal() as session:
+        ingestion_service = IngestionService(session)
+        await ingestion_service.ingest_document(document_id)
+
 @router.post("/{id}/ingest", response_model=Document)
 async def ingest_document(
     id: int,
@@ -54,11 +61,16 @@ async def ingest_document(
     """
     Trigger ingestion for a document.
     """
-    ingestion_service = IngestionService(db)
-    await ingestion_service.ingest_document(id)
-    
     from app.models.document import Document as DocumentModel
     doc = await db.get(DocumentModel, id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    doc.status = "processing"
+    await db.commit()
+    
+    background_tasks.add_task(run_ingestion, id)
+    
     return doc
 
 @router.post("/chat", response_model=ChatResponse)
@@ -83,3 +95,25 @@ async def read_documents(
 ) -> Any:
     documents = await crud_document.get_multi(db, skip=skip, limit=limit)
     return documents
+
+@router.delete("/{id}", response_model=Document)
+async def delete_document(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Delete a document and its file.
+    """
+    from app.models.document import Document as DocumentModel
+    doc = await db.get(DocumentModel, id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    # Remove file from filesystem
+    if os.path.exists(doc.file_path):
+        os.remove(doc.file_path)
+    
+    await db.delete(doc)
+    await db.commit()
+    return doc

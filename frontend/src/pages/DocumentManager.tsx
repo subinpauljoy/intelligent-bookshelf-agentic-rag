@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Container, Typography, Button, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, LinearProgress, FormControl, InputLabel, Select, MenuItem, Paper, Box } from '@mui/material';
+import { Container, Typography, Button, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, LinearProgress, FormControl, InputLabel, Select, MenuItem, Paper, Box, CircularProgress, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../services/api';
 
 interface Document {
@@ -22,11 +23,28 @@ const DocumentManager = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedBookId, setSelectedBookId] = useState<number | string>('');
   const [uploading, setUploading] = useState(false);
+  const [ingestingIds, setIngestingIds] = useState<Set<number>>(new Set());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<number | null>(null);
 
   useEffect(() => {
     fetchDocuments();
     fetchBooks();
   }, []);
+
+  // Poll for updates if any document is processing
+  useEffect(() => {
+    const hasProcessing = documents.some(doc => doc.status === 'processing');
+    let interval: number | undefined;
+
+    if (hasProcessing) {
+        interval = window.setInterval(() => {
+            fetchDocuments();
+        }, 3000);
+    }
+
+    return () => clearInterval(interval);
+  }, [documents]);
 
   const fetchDocuments = async () => {
     try {
@@ -70,12 +88,42 @@ const DocumentManager = () => {
   };
 
   const triggerIngestion = async (id: number) => {
+    setIngestingIds(prev => new Set(prev).add(id));
     try {
       await api.post(`/documents/${id}/ingest`);
       fetchDocuments();
     } catch (error) {
       console.error("Ingestion failed", error);
+    } finally {
+      setIngestingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
+  };
+
+  const handleDelete = (id: number) => {
+    setDocumentToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (documentToDelete) {
+        try {
+            await api.delete(`/documents/${documentToDelete}`);
+            fetchDocuments();
+        } catch (error) {
+            console.error("Delete failed", error);
+        } finally {
+            handleCancelDelete();
+        }
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setDocumentToDelete(null);
   };
 
   return (
@@ -134,15 +182,44 @@ const DocumentManager = () => {
                 color={doc.status === 'ready' ? 'success' : doc.status === 'failed' ? 'error' : 'default'} 
                 sx={{ mr: 2 }}
               />
-              {doc.status === 'uploaded' && (
-                <IconButton edge="end" aria-label="ingest" onClick={() => triggerIngestion(doc.id)} color="primary">
-                  <PlayArrowIcon />
-                </IconButton>
+              {(ingestingIds.has(doc.id) || doc.status === 'processing') ? (
+                <CircularProgress size={24} sx={{ mr: 1, verticalAlign: 'middle' }} />
+              ) : (
+                 doc.status === 'uploaded' ? (
+                    <IconButton edge="end" aria-label="ingest" onClick={() => triggerIngestion(doc.id)} color="primary">
+                      <PlayArrowIcon />
+                    </IconButton>
+                 ) : null
               )}
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(doc.id)} color="error" sx={{ ml: 1 }}>
+                <DeleteIcon />
+              </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
         ))}
       </List>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCancelDelete}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          {"Delete Document?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this document? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
