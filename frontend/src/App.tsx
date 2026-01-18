@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Box } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
@@ -19,12 +20,14 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = () => {
     return (
-        <>
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navigation />
-            {children}
-        </>
+            <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
+                <Outlet />
+            </Box>
+        </Box>
     );
 };
 
@@ -38,31 +41,18 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             
-            <Route path="/" element={
+            {/* Protected Routes wrapped in Layout */}
+            <Route element={
               <ProtectedRoute>
-                <Layout><BookList /></Layout>
+                <Layout />
               </ProtectedRoute>
-            } />
-            <Route path="/books/new" element={
-              <ProtectedRoute>
-                <Layout><AddBook /></Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/documents" element={
-              <ProtectedRoute>
-                <Layout><DocumentManager /></Layout>
-              </ProtectedRoute>
-            } />
-             <Route path="/chat" element={
-              <ProtectedRoute>
-                <Layout><ChatInterface /></Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/users" element={
-              <ProtectedRoute>
-                <Layout><UserManagement /></Layout>
-              </ProtectedRoute>
-            } />
+            }>
+                <Route path="/" element={<BookList />} />
+                <Route path="/books/new" element={<AddBook />} />
+                <Route path="/documents" element={<DocumentManager />} />
+                <Route path="/chat" element={<ChatInterface />} />
+                <Route path="/admin/users" element={<UserManagement />} />
+            </Route>
           </Routes>
         </Router>
       </AuthProvider>
