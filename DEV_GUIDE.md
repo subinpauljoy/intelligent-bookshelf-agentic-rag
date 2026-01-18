@@ -1,62 +1,63 @@
 # Local Development Guide
 
-Follow these steps to run the application in development mode with hot-reloading.
+Follow these steps for rapid development with hot-reloading.
 
 ## 1. Start the Database
-Use Docker Compose to run **only** the PostgreSQL service.
+Run **only** the PostgreSQL service via Docker.
 ```bash
-# In the root 'intelligent-book-management' directory
 docker-compose up -d db
 ```
 
 ## 2. Setup the Backend
-Open a new terminal and navigate to the `backend` folder.
+Navigate to the `backend` folder.
 
-### Install Dependencies
-It's recommended to use a virtual environment.
+### Install
 ```bash
 cd backend
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Configure Environment
-Export your OpenRouter API Key and set the DB host to `localhost`.
+### Environment
+Ensure your `.env` is in the root directory or export the key:
 ```bash
-export OPENROUTER_API_KEY="your_api_key_here"
+export OPENROUTER_API_KEY="your_api_key"
 export POSTGRES_SERVER="localhost"
 ```
 
-### Initialize Database
-Run the script to enable the vector extension and apply migrations.
+### Database Initialization
 ```bash
-python init_db.py
-alembic revision --autogenerate -m "Initial migration"
+# Apply migrations to create tables and pgvector extension
 alembic upgrade head
+
+# Create an admin (Register in the UI at http://localhost:5173/signup first)
+python scripts/promote_user.py
 ```
 
-### Run the Server
+### Run
 ```bash
 uvicorn main:app --reload
 ```
-The backend will be available at: http://localhost:8000
+API Docs: http://localhost:8000/docs
 
 ---
 
 ## 3. Setup the Frontend
-Open another terminal and navigate to the `frontend` folder.
+Navigate to the `frontend` folder.
 
-### Install & Run
+### Run
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The frontend will be available at: http://localhost:5173 (or as shown in the console).
+The app will be available at: http://localhost:5173
 
 ---
 
-## Troubleshooting
-- **Backend container exit**: Check the logs using `docker-compose logs backend`. It usually fails if `OPENROUTER_API_KEY` is missing or the DB is not ready.
-- **DB Connection**: Ensure `POSTGRES_SERVER` is `localhost` when running the app locally, but `db` when running inside Docker.
+## 🛠️ Common Fixes
+
+- **pgvector Import Errors**: The migration template has been updated. If you generate a new migration and see `NameError: pgvector`, ensure `import pgvector` is at the top of the generated file.
+- **CORS Issues**: The backend is configured to allow `localhost:5173`. If you change the frontend port, update `BACKEND_CORS_ORIGINS` in `app/core/config.py`.
+- **Password Length**: We use SHA-256 pre-hashing, so you can use passwords of any length safely.

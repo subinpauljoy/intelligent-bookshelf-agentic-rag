@@ -1,29 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, Paper, Divider, Rating, TextField, Button, List, ListItem, ListItemText, Alert } from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { Container, Typography, Box, Paper, Divider, Rating, TextField, Button, List, ListItem, ListItemText, Alert, Chip, CircularProgress } from '@mui/material';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import api from '../services/api';
 
 interface Review {
   id: number;
   review_text: string;
   rating: number;
-  user_id: number;
 }
 
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  genre: string;
-  year_published: number;
+interface BookSummary {
   summary: string;
+  review_summary: string;
+  average_rating: number;
 }
 
 const BookDetail = () => {
   const { id } = useParams();
-  const [book, setBook] = useState<Book | null>(null);
+  const [book, setBook] = useState<any>(null);
+  const [aiSummary, setAiSummary] = useState<BookSummary | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({ review_text: '', rating: 5 });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -34,10 +33,16 @@ const BookDetail = () => {
     try {
       const bookRes = await api.get(`/books/${id}`);
       setBook(bookRes.data);
+      
+      const summaryRes = await api.get(`/books/${id}/summary`);
+      setAiSummary(summaryRes.data);
+      
       const reviewsRes = await api.get(`/books/${id}/reviews`);
       setReviews(reviewsRes.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,33 +50,45 @@ const BookDetail = () => {
     try {
       await api.post(`/books/${id}/reviews`, newReview);
       setNewReview({ review_text: '', rating: 5 });
-      fetchBookData();
+      fetchBookData(); // Refresh to update AI summary
     } catch (err) {
       setError('Failed to post review');
     }
   };
 
-  if (!book) return <Typography>Loading...</Typography>;
+  if (loading) return <CircularProgress sx={{ display: 'block', m: 'auto', mt: 4 }} />;
+  if (!book) return <Typography>Book not found</Typography>;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
         <Typography variant="h3" gutterBottom>{book.title}</Typography>
-        <Typography variant="h5" color="text.secondary" gutterBottom>by {book.author}</Typography>
-        <Box sx={{ mt: 2, mb: 2 }}>
-            <Typography variant="body1"><strong>Genre:</strong> {book.genre}</Typography>
-            <Typography variant="body1"><strong>Year:</strong> {book.year_published}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Typography variant="h5" color="text.secondary">by {book.author}</Typography>
+            <Chip label={book.genre} size="small" variant="outlined" />
+            <Rating value={aiSummary?.average_rating || 0} readOnly precision={0.5} />
         </Box>
+        
         <Divider sx={{ my: 3 }} />
-        <Typography variant="h6" gutterBottom>Summary</Typography>
-        <Typography variant="body1" paragraph>{book.summary}</Typography>
+
+        {aiSummary?.review_summary && (
+            <Box sx={{ bgcolor: 'info.light', p: 2, borderRadius: 2, mb: 3, color: 'info.contrastText' }}>
+                <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <AutoAwesomeIcon fontSize="small" /> AI Review Analysis
+                </Typography>
+                <Typography variant="body2">{aiSummary.review_summary}</Typography>
+            </Box>
+        )}
+
+        <Typography variant="h6" gutterBottom>Official Summary</Typography>
+        <Typography variant="body1" paragraph>{aiSummary?.summary || book.summary}</Typography>
       </Paper>
 
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" gutterBottom>Reviews</Typography>
+        <Typography variant="h5" gutterBottom>Reader Reviews</Typography>
         <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Add a Review</Typography>
-          {error && <Alert severity="error">{error}</Alert>}
+          <Typography variant="h6" gutterBottom>Add your review</Typography>
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Rating 
             value={newReview.rating} 
             onChange={(_, val) => setNewReview({...newReview, rating: val || 5})} 
@@ -81,7 +98,7 @@ const BookDetail = () => {
             fullWidth
             multiline
             rows={3}
-            label="Write your review..."
+            label="What did you think of this book?"
             value={newReview.review_text}
             onChange={(e) => setNewReview({...newReview, review_text: e.target.value})}
             sx={{ mb: 2 }}
@@ -98,7 +115,6 @@ const BookDetail = () => {
               />
             </ListItem>
           ))}
-          {reviews.length === 0 && <Typography color="text.secondary">No reviews yet.</Typography>}
         </List>
       </Box>
     </Container>

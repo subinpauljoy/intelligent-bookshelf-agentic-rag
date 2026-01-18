@@ -1,87 +1,72 @@
-# Intelligent Book Management System
+# Intelligent Book Management System (RAG 2.0)
 
-This is a comprehensive Book Management System featuring a FastAPI backend with PostgreSQL, and a React frontend. It integrates AI capabilities using Llama 3 via OpenRouter for generating book summaries.
+A sophisticated Book Management System featuring a FastAPI backend, React frontend, and a **Multi-Agent RAG (Retrieval-Augmented Generation) System** powered by Llama 3 via OpenRouter.
 
-Both the embedding logic and Inference are used via OpenRouter API. This has several major benefits for your project:
+## 🚀 Advanced Features (RAG 2.0)
 
-   1. Lightweight Container: The Docker image size is reduced from ~3GB to ~200MB because we no longer need PyTorch and CUDA.
-   2. No Large Installs: You won't see any more NVIDIA/CUDA packages being downloaded during pip install.
-   3. Scalability: Since the heavy lifting (vectorizing text) is now done by an API, your backend will consume very little CPU and RAM, making it perfect for AWS deployment.
-   4. Consistency: We are now using the same API-based approach for both embeddings and the LLM (Llama3).
+- **Context-Aware Multi-Agent Chat**: 
+    - **Router Agent**: Automatically detects user intent (Metadata vs. Content vs. Out-of-scope).
+    - **Guardrails**: Prevents non-book related queries with helpful deflections.
+    - **Metadata Search**: Handles queries like "List 5 fantasy books" by querying SQL directly.
+    - **Semantic Search**: Uses pgvector to answer deep-dive content questions.
+- **Smart Ingestion Pipeline**:
+    - **Metadata Linkage**: Documents are linked to specific books.
+    - **Auto-Summarization**: Generating a document ingestion automatically updates the book's AI summary in the library.
+- **Review Analytics**:
+    - **Sentiment Summary**: AI aggregates all user reviews into a concise sentiment analysis.
+    - **Semantic Recommendations**: A "User Taste Vector" is built from your high-rated reviews to suggest new books semantically similar to your preferences.
+- **Responsive UI**: Modern Material UI dashboard with optimized mobile/tablet views.
 
-## Features
+## 🛠️ Tech Stack
 
-- **User Management**: Authentication and Authorization (JWT).
-- **Book Management**: CRUD operations for books.
-- **Reviews**: Add and view reviews for books.
-- **AI Integration**: Auto-generate book summaries using Llama 3.
-- **Responsive UI**: Built with React and Material UI.
+- **Backend**: FastAPI, SQLAlchemy (Async), PostgreSQL + pgvector.
+- **AI/LLM**: Llama 3 (Inference) & OpenAI (Embeddings) via OpenRouter API.
+- **Frontend**: React (Vite, TypeScript), Material UI v7.
+- **DevOps**: Docker, Docker Compose, Alembic.
 
-## Prerequisites
+## 📋 Prerequisites
 
-- Docker and Docker Compose
-- An OpenRouter API Key (for AI features)
+- Docker and Docker Compose.
+- An **OpenRouter API Key**.
 
-## Deployment Steps
+## ⚙️ Setup & Deployment
 
-### 1. Clone the Repository
-
+### 1. Clone & Configure
 ```bash
 git clone <repository_url>
 cd intelligent-book-management
 ```
-
-### 2. Configuration
-
-Create a `.env` file in the root directory or export the environment variables directly.
-
-```bash
-export OPENROUTER_API_KEY="your_openrouter_api_key_here"
+Create a `.env` file in the root with:
+```env
+OPENROUTER_API_KEY=your_key_here
+POSTGRES_PASSWORD=password
 ```
 
-You can also modify `backend/app/core/config.py` for default settings like database credentials if not using Docker Compose defaults.
-
-### 3. Run with Docker Compose
-
-Build and start the services:
-
+### 2. Run with Docker Compose
 ```bash
 docker-compose up --build
 ```
+- **Frontend**: http://localhost:3000
+- **Backend**: http://localhost:8000
+- **Database**: Port 5432 (PostgreSQL + pgvector)
 
-This will start:
-
-- **Frontend**: <http://localhost:3000>
-- **Backend API**: <http://localhost:8000>
-- **PostgreSQL Database**: Port 5432
-
-### 4. Database Migrations
-
-The application uses Alembic for migrations. When running with Docker, migrations can be applied automatically or manually.
-
-To run migrations manually inside the container:
-
+### 3. Initialize Database & Admin
+Apply migrations and promote your first user:
 ```bash
 docker-compose exec backend alembic upgrade head
+# Register a user in the UI first, then:
+docker-compose exec backend python scripts/promote_user.py
 ```
 
-### 5. Accessing the Application
+## ☁️ AWS Production Architecture
 
-1. Open <http://localhost:3000> in your browser.
-2. Sign up/Login to access the dashboard.
-3. Start adding books!
+For a scalable AWS deployment, we recommend:
+- **RDS for PostgreSQL**: High-availability database with `pgvector` enabled.
+- **ECS Fargate**: Serverless container execution for the lightweight FastAPI backend.
+- **S3 + CloudFront**: Scalable static hosting for the React frontend.
+- **Secrets Manager**: Secure storage for the OpenRouter API Key.
 
-## API Documentation
-
-Once the backend is running, you can access the interactive API docs at:
-
-- Swagger UI: <http://localhost:8000/docs>
-- ReDoc: <http://localhost:8000/redoc>
-
-## Testing
-
-To run backend tests:
-
+## 🧪 Testing
 ```bash
 docker-compose exec backend pytest
 ```

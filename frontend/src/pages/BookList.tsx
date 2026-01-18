@@ -34,7 +34,7 @@ const BookList = () => {
         Book Library
       </Typography>
       <Grid container spacing={3}>
-        {books.map((book) => (
+        {books.length ? books.map((book) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={book.id}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardContent sx={{ flexGrow: 1 }}>
@@ -57,7 +57,11 @@ const BookList = () => {
               </CardActions>
             </Card>
           </Grid>
-        ))}
+        )) :
+          <Typography variant="body1" sx={{ mb: 4 }} color="text.secondary">
+            No books added yet. Add some book information to view here
+          </Typography>
+        }
       </Grid>
       <Fab color="primary" aria-label="add" sx={{ position: 'fixed', bottom: 16, right: 16 }} component={Link} to="/books/new">
         <AddIcon />

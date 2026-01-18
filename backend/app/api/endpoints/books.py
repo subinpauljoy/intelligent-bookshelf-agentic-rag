@@ -47,6 +47,43 @@ async def create_book(
     book = await crud_book.create(db, obj_in=book_in)
     return book
 
+@router.get("/{id}/summary", response_model=dict)
+async def get_book_summary_ai(
+    *,
+    db: AsyncSession = Depends(get_db),
+    id: int,
+) -> Any:
+    """
+    Get an AI-generated summary of reviews and aggregated rating for a book.
+    """
+    book = await crud_book.get(db, id=id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    
+    # Get reviews
+    result = await db.execute(select(Review).where(Review.book_id == id))
+    reviews = result.scalars().all()
+    
+    if not reviews:
+        return {
+            "summary": book.summary or "No summary available.",
+            "review_summary": "No reviews yet.",
+            "average_rating": 0
+        }
+    
+    avg_rating = sum([r.rating for r in reviews]) / len(reviews)
+    review_texts = [r.review_text for r in reviews if r.review_text]
+    
+    review_summary = "No detailed reviews to summarize."
+    if review_texts:
+        review_summary = await llm_service.generate_review_summary(review_texts)
+        
+    return {
+        "summary": book.summary,
+        "review_summary": review_summary,
+        "average_rating": avg_rating
+    }
+
 @router.get("/{id}", response_model=Book)
 async def read_book(
     *,
