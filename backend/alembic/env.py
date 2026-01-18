@@ -12,6 +12,7 @@ from app.db.base import Base
 from app.models.user import User
 from app.models.book import Book
 from app.models.review import Review
+from app.models.document import Document
 from app.core.config import settings
 
 config = context.config

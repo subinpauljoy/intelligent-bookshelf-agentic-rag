@@ -75,3 +75,23 @@ async def read_user_me(
     Get current user.
     """
     return current_user
+
+@router.put("/{user_id}", response_model=User)
+async def update_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    user_in: UserUpdate,
+    current_user: User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Update a user.
+    """
+    user = await crud_user.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
+    user = await crud_user.update(db, db_obj=user, obj_in=user_in)
+    return user
