@@ -1,0 +1,37 @@
+from pydantic_settings import BaseSettings
+from pydantic import PostgresDsn, computed_field
+from typing import Optional
+
+class Settings(BaseSettings):
+    PROJECT_NAME: str = "Intelligent Book Management"
+    API_V1_STR: str = "/api/v1"
+    
+    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "password"
+    POSTGRES_DB: str = "book_db"
+    POSTGRES_PORT: int = 5432
+    
+    SECRET_KEY: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7" # Change in production
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    OPENROUTER_API_KEY: Optional[str] = None
+    
+    @computed_field
+    @property
+    def SQLALCHEMY_DATABASE_URI(self) -> str:
+        return str(PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_SERVER,
+            port=self.POSTGRES_PORT,
+            path=self.POSTGRES_DB,
+        ))
+
+    class Config:
+        case_sensitive = True
+        env_file = ".env"
+
+settings = Settings()
