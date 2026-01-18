@@ -22,6 +22,6 @@ class DocumentChunk(Base):
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
     chunk_index = Column(Integer, nullable=False)
     content = Column(Text, nullable=False)
-    embedding = Column(Vector(384)) # Using all-MiniLM-L6-v2 which has 384 dimensions
+    embedding = Column(Vector(1536)) # Using OpenAI text-embedding-3-small or ada-002 dimension
 
     document = relationship("Document", back_populates="chunks")

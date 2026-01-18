@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import api from '../services/api';
 
 interface User {
@@ -25,8 +25,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      // Ideally, verify token with backend or decode if stateless
-      // For now, let's fetch 'me'
       api.get('/users/me')
         .then(response => setUser(response.data))
         .catch(() => logout());

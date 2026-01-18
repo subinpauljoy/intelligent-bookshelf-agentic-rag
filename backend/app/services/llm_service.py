@@ -7,8 +7,8 @@ class LLMService:
     def __init__(self):
         self.llm = ChatOpenAI(
             openai_api_key=settings.OPENROUTER_API_KEY,
-            openai_api_base="https://openrouter.ai/api/v1",
-            model_name="meta-llama/llama-3-8b-instruct:free",
+            base_url="https://openrouter.ai/api/v1",
+            model="meta-llama/llama-3-8b-instruct:free",
             temperature=0.7
         )
 

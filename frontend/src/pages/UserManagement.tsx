@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Button, Checkbox } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Container, Typography, Table, TableBody, TableCell, TableHead, TableRow, Checkbox } from '@mui/material';
 import api from '../services/api';
 
 interface User {
@@ -55,7 +55,6 @@ const UserManagement = () => {
             <TableCell>Email</TableCell>
             <TableCell>Active</TableCell>
             <TableCell>Admin</TableCell>
-            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -68,9 +67,6 @@ const UserManagement = () => {
               </TableCell>
               <TableCell>
                 <Checkbox checked={user.is_superuser} onChange={() => toggleSuperuser(user)} />
-              </TableCell>
-              <TableCell>
-                  {/* Additional actions like delete could go here */}
               </TableCell>
             </TableRow>
           ))}

@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Generated files
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Dependency directories
+venv/
+env/
+env3.*
+
+# IDE-specific files (optional)
+.idea/
+.vscode/
+
+# Local environment variables
+.env
+log.txt
+test.db*
+

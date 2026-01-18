@@ -2,6 +2,13 @@
 
 This is a comprehensive Book Management System featuring a FastAPI backend with PostgreSQL, and a React frontend. It integrates AI capabilities using Llama 3 via OpenRouter for generating book summaries.
 
+Both the embedding logic and Inference are used via OpenRouter API. This has several major benefits for your project:
+
+   1. Lightweight Container: The Docker image size is reduced from ~3GB to ~200MB because we no longer need PyTorch and CUDA.
+   2. No Large Installs: You won't see any more NVIDIA/CUDA packages being downloaded during pip install.
+   3. Scalability: Since the heavy lifting (vectorizing text) is now done by an API, your backend will consume very little CPU and RAM, making it perfect for AWS deployment.
+   4. Consistency: We are now using the same API-based approach for both embeddings and the LLM (Llama3).
+
 ## Features
 
 - **User Management**: Authentication and Authorization (JWT).
@@ -43,8 +50,9 @@ docker-compose up --build
 ```
 
 This will start:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
+
+- **Frontend**: <http://localhost:3000>
+- **Backend API**: <http://localhost:8000>
 - **PostgreSQL Database**: Port 5432
 
 ### 4. Database Migrations
@@ -59,15 +67,16 @@ docker-compose exec backend alembic upgrade head
 
 ### 5. Accessing the Application
 
-1. Open http://localhost:3000 in your browser.
+1. Open <http://localhost:3000> in your browser.
 2. Sign up/Login to access the dashboard.
 3. Start adding books!
 
 ## API Documentation
 
 Once the backend is running, you can access the interactive API docs at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+
+- Swagger UI: <http://localhost:8000/docs>
+- ReDoc: <http://localhost:8000/redoc>
 
 ## Testing
 

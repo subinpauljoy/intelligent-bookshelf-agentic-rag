@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, TextField, Button, Paper, List, ListItem, Divider, Chip } from '@mui/material';
+import { useState, useRef, useEffect } from 'react';
+import { Container, Typography, Box, TextField, Button, Paper, Divider, Chip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import api from '../services/api';
 

@@ -1,13 +1,30 @@
 import os
 from typing import List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
+from langchain_openai import OpenAIEmbeddings
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.document import Document, DocumentChunk
+from app.core.config import settings
 from pypdf import PdfReader
 
-# Initialize embedding model globally to load it once
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+# Validate API Key early
+if not settings.OPENROUTER_API_KEY:
+    # If not found in settings, try direct env look up as fallback
+    key = os.getenv("OPENROUTER_API_KEY")
+    if not key:
+        print("WARNING: OPENROUTER_API_KEY not found in settings or environment!")
+    else:
+        settings.OPENROUTER_API_KEY = key
+
+# Initialize embedding API
+embedding_service = OpenAIEmbeddings(
+    openai_api_key=settings.OPENROUTER_API_KEY or "dummy_key_to_avoid_validation_error",
+    openai_api_base="https://openrouter.ai/api/v1",
+    model="openai/text-embedding-3-small"
+)
+
+# Alias for backward compatibility with recommendation_service.py
+embedding_model = embedding_service
 
 class IngestionService:
     def __init__(self, db: AsyncSession):
@@ -21,7 +38,6 @@ class IngestionService:
                 text += page.extract_text() + "\n"
             return text
         else:
-            # Assume text file
             with open(file_path, 'r', encoding='utf-8') as f:
                 return f.read()
 
@@ -32,9 +48,6 @@ class IngestionService:
             length_function=len,
         )
         return text_splitter.split_text(text)
-
-    def get_embedding(self, text: str) -> List[float]:
-        return embedding_model.encode(text).tolist()
 
     async def ingest_document(self, document_id: int):
         doc = await self.db.get(Document, document_id)
@@ -48,8 +61,10 @@ class IngestionService:
             text = self.extract_text(doc.file_path, doc.filename)
             chunks = self.get_chunks(text)
             
-            for i, chunk_text in enumerate(chunks):
-                embedding = self.get_embedding(chunk_text)
+            # Batch generate embeddings via API
+            embeddings = await embedding_service.aembed_documents(chunks)
+            
+            for i, (chunk_text, embedding) in enumerate(zip(chunks, embeddings)):
                 db_chunk = DocumentChunk(
                     document_id=doc.id,
                     chunk_index=i,

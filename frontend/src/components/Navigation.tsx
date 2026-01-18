@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Menu, MenuItem, Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { useState } from 'react';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -21,6 +21,7 @@ const Navigation = () => {
 
   const navItems = [
     { label: 'Books', path: '/' },
+    { label: 'Recommendations', path: '/recommendations' },
     { label: 'Documents', path: '/documents' },
     { label: 'Q&A', path: '/chat' },
   ];

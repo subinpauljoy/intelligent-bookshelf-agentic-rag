@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
@@ -34,8 +34,6 @@ const AddBook = () => {
     setAiLoading(true);
     try {
       const prompt = `Title: ${title}, Author: ${author}. Provide a summary for this book.`;
-      const response = await api.post('/generate-summary', { body: prompt }); // Assuming backend takes 'body' or raw text
-      // Adjust backend to accept {text: ...} as per previous impl
       const res = await api.post('/generate-summary', { text: prompt }); 
       setValue('summary', res.data.summary);
     } catch (err) {

@@ -7,7 +7,20 @@ from app.api import deps
 from app.schemas.book import Book, BookCreate, BookUpdate
 from app.db.session import get_db
 
+from app.services.recommendation_service import RecommendationService
+
 router = APIRouter()
+
+@router.get("/recommendations", response_model=List[Book])
+async def get_recommendations(
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get book recommendations based on user preferences.
+    """
+    rec_service = RecommendationService(db)
+    return await rec_service.get_recommendations(user_id=current_user.id)
 
 @router.get("/", response_model=List[Book])
 async def read_books(

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Typography, Grid, Card, CardContent, CardActions, Button, Fab } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom';
@@ -35,7 +35,7 @@ const BookList = () => {
       </Typography>
       <Grid container spacing={3}>
         {books.map((book) => (
-          <Grid item xs={12} sm={6} md={4} key={book.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={book.id}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">

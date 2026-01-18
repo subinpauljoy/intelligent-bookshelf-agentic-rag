@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.crud_user import user as crud_user
 from app.api import deps
+from app.core.config import settings
 from app.schemas.user import User, UserCreate, UserUpdate
 from app.db.session import get_db
 
@@ -46,24 +47,22 @@ async def create_user(
 async def create_user_open(
     *,
     db: AsyncSession = Depends(get_db),
-    password: str = Body(...),
-    email: str = Body(...),
+    user_in: UserCreate,
 ) -> Any:
     """
     Create new user without the need to be logged in.
     """
-    if not settings.USERS_OPEN_REGISTRATION: # Add this to settings later or assume true
+    if not settings.USERS_OPEN_REGISTRATION:
         raise HTTPException(
             status_code=403,
             detail="Open user registration is forbidden on this server",
         )
-    user = await crud_user.get_by_email(db, email=email)
+    user = await crud_user.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
             status_code=400,
             detail="The user with this username already exists in the system",
         )
-    user_in = UserCreate(password=password, email=email)
     user = await crud_user.create(db, obj_in=user_in)
     return user
 
