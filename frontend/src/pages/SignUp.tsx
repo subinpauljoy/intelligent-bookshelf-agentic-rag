@@ -2,22 +2,19 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert, Link } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import { loginUser } from '../services/auth';
+import { registerUser } from '../services/auth';
 
-const Login = () => {
+const SignUp = () => {
   const { register, handleSubmit } = useForm();
-  const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await loginUser(data.email, data.password);
-      login(response.access_token);
-      navigate('/');
+      await registerUser(data);
+      navigate('/login');
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Registration failed. Email might be taken.');
     }
   };
 
@@ -25,7 +22,7 @@ const Login = () => {
     <Container maxWidth="xs">
       <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5">
-          Sign in
+          Sign Up
         </Typography>
         {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
@@ -46,7 +43,7 @@ const Login = () => {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             {...register('password')}
           />
           <Button
@@ -55,10 +52,10 @@ const Login = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Sign Up
           </Button>
-          <Link component={RouterLink} to="/signup" variant="body2">
-            {"Don't have an account? Sign Up"}
+          <Link component={RouterLink} to="/login" variant="body2">
+            {"Already have an account? Sign In"}
           </Link>
         </Box>
       </Box>
@@ -66,4 +63,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

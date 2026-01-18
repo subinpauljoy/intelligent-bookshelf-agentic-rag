@@ -49,18 +49,18 @@
 - [x] **Documentation**: Write comprehensive `README.md` and deployment guide.
 
 ## Phase 7: RAG & Advanced Features (Backend)
-- [ ] **Database Upgrade**: Switch to `pgvector` image.
-- [ ] **RAG Models**: Create `Document` and `DocumentChunk` (vector) models.
-- [ ] **Ingestion Service**: Implement file parsing (PDF/Text) and embedding generation.
-- [ ] **RAG API**:
-    - [ ] Document Upload Endpoint
-    - [ ] Ingestion Trigger Endpoint
-    - [ ] Q&A/Chat Endpoint
-- [ ] **User Management API**: Ensure endpoints support role updates (already in `crud_user`, need verification).
+- [x] **Database Upgrade**: Switch to `pgvector` image.
+- [x] **RAG Models**: Create `Document` and `DocumentChunk` (vector) models.
+- [x] **Ingestion Service**: Implement file parsing (PDF/Text) and embedding generation.
+- [x] **RAG API**:
+    - [x] Document Upload Endpoint
+    - [x] Ingestion Trigger Endpoint
+    - [x] Q&A/Chat Endpoint
+- [x] **User Management API**: Ensure endpoints support role updates (already in `crud_user`, need verification).
 
 ## Phase 8: Frontend Expansion
-- [ ] **Sign Up Page**: Implement `SignUp.tsx`.
-- [ ] **User Management**: Create `UserManagement.tsx` for Admin to manage users.
-- [ ] **Document Management**: Create `DocumentManager.tsx` for upload/ingest.
-- [ ] **Q&A Interface**: Create `ChatInterface.tsx`.
-- [ ] **Navigation**: Add proper navigation bar for these new features.
+- [x] **Sign Up Page**: Implement `SignUp.tsx`.
+- [x] **User Management**: Create `UserManagement.tsx` for Admin to manage users.
+- [x] **Document Management**: Create `DocumentManager.tsx` for upload/ingest.
+- [x] **Q&A Interface**: Create `ChatInterface.tsx`.
+- [x] **Navigation**: Add proper navigation bar for these new features.
