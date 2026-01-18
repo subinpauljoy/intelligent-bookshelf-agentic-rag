@@ -25,24 +25,24 @@
 - [x] **User Service**: Implement CRUD for Users.
 - [x] **Book Service**: Implement CRUD for Books.
 - [x] **Review Service**: Implement CRUD for Reviews.
-- [ ] **API Routers**:
-    - [ ] Users Router
-    - [ ] Books Router
-    - [ ] Reviews Router
-- [ ] **Main Application**: Setup `main.py` with FastAPI app and router inclusion.
+- [x] **API Routers**:
+    - [x] Users Router
+    - [x] Books Router
+    - [x] Reviews Router
+- [x] **Main Application**: Setup `main.py` with FastAPI app and router inclusion.
 
 ## Phase 4: AI/LLM Integration (Llama3 via OpenRouter)
-- [ ] **LLM Service**: Create a service to interact with OpenRouter API.
-- [ ] **Summarization**: Implement logic to summarize book content.
+- [x] **LLM Service**: Create a service to interact with OpenRouter API.
+- [x] **Summarization**: Implement logic to summarize book content.
 - [ ] **Recommendations**: Implement basic recommendation logic (hybrid or content-based).
 - [ ] **Integration**: Connect LLM service to Book creation/update flows.
 
 ## Phase 5: Frontend (React)
-- [ ] **Scaffolding**: Initialize React app with Vite/CRA.
-- [ ] **Routing**: Setup React Router.
-- [ ] **State Management**: Choose context or state library.
-- [ ] **UI Components**:
-    - [ ] Authentication Forms (Login/Signup)
+- [x] **Scaffolding**: Initialize React app with Vite/CRA.
+- [x] **Routing**: Setup React Router.
+- [x] **State Management**: Choose context or state library.
+- [x] **UI Components**:
+    - [x] Authentication Forms (Login/Signup)
     - [ ] Dashboard/Layout
     - [ ] Book List & Details
     - [ ] Add/Edit Book Forms
@@ -50,7 +50,7 @@
 - [ ] **API Integration**: Connect frontend to FastAPI backend.
 
 ## Phase 6: DevOps & Deployment
-- [ ] **Docker**: Create `Dockerfile` for backend and frontend.
-- [ ] **Docker Compose**: Orchestrate services (Backend, Frontend, DB) with `docker-compose.yml`.
+- [x] **Docker**: Create `Dockerfile` for backend and frontend.
+- [x] **Docker Compose**: Orchestrate services (Backend, Frontend, DB) with `docker-compose.yml`.
 - [ ] **Testing**: Write unit and integration tests.
 - [ ] **Documentation**: Write comprehensive `README.md` and deployment guide.
