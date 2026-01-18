@@ -14,7 +14,7 @@ class Document(Base):
     upload_date = Column(DateTime(timezone=True), server_default=func.now())
     status = Column(String, default="uploaded")
 
-    book = relationship("Book")
+    book = relationship("Book", back_populates="documents")
     chunks = relationship("DocumentChunk", back_populates="document", cascade="all, delete-orphan")
 
 class DocumentChunk(Base):

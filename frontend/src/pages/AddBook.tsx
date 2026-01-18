@@ -1,46 +1,28 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Container, TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Alert, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import api from '../services/api';
+import { POPULAR_GENRES, PUBLICATION_YEARS } from '../utils/constants';
 
 const AddBook = () => {
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState('');
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    setError('');
     try {
       await api.post('/books/', data);
       navigate('/');
-    } catch (err) {
-      setError('Failed to create book');
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || 'Failed to create book';
+      setError(msg);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const generateSummary = async () => {
-    const title = watch('title');
-    const author = watch('author');
-    if (!title || !author) {
-      setError('Please enter title and author to generate summary');
-      return;
-    }
-    
-    setAiLoading(true);
-    try {
-      const prompt = `Title: ${title}, Author: ${author}. Provide a summary for this book.`;
-      const res = await api.post('/generate-summary', { text: prompt }); 
-      setValue('summary', res.data.summary);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to generate summary');
-    } finally {
-      setAiLoading(false);
     }
   };
 
@@ -49,6 +31,14 @@ const AddBook = () => {
       <Box sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>Add New Book</Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        
+        <Paper variant="outlined" sx={{ p: 2, mb: 3, display: 'flex', gap: 2, alignItems: 'center', bgcolor: 'rgba(0,0,0,0.02)' }}>
+            <InfoIcon color="info" />
+            <Typography variant="body2">
+                <strong>Tip:</strong> You can leave the summary blank for now. Once you upload and ingest the book's document in the "Documents" section, an AI summary will be generated automatically.
+            </Typography>
+        </Paper>
+
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <TextField
             margin="normal"
@@ -64,40 +54,55 @@ const AddBook = () => {
             label="Author"
             {...register('author')}
           />
+          
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel id="genre-label">Genre</InputLabel>
+            <Select
+              labelId="genre-label"
+              id="genre"
+              label="Genre"
+              defaultValue=""
+              {...register('genre', { required: true })}
+            >
+              {POPULAR_GENRES.map((genre) => (
+                <MenuItem key={genre} value={genre}>
+                  {genre}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="year-label">Year Published</InputLabel>
+            <Select
+              labelId="year-label"
+              id="year_published"
+              label="Year Published"
+              defaultValue={new Date().getFullYear().toString()}
+              {...register('year_published')}
+            >
+              {PUBLICATION_YEARS.map((year) => (
+                <MenuItem key={year} value={year}>
+                  {year}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
           <TextField
             margin="normal"
             fullWidth
-            label="Genre"
-            {...register('genre')}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Year Published"
-            type="number"
-            {...register('year_published')}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Summary"
+            label="Summary (Optional)"
             multiline
             rows={4}
             {...register('summary')}
           />
-          <Button 
-            variant="outlined" 
-            onClick={generateSummary} 
-            disabled={aiLoading}
-            sx={{ mt: 1, mb: 2 }}
-          >
-            {aiLoading ? <CircularProgress size={24} /> : 'Generate Summary with AI'}
-          </Button>
+          
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 2 }}
+            sx={{ mt: 3 }}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Book'}

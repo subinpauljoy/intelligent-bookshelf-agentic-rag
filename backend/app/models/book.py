@@ -13,3 +13,4 @@ class Book(Base):
     summary = Column(Text, nullable=True)
 
     reviews = relationship("Review", back_populates="book", cascade="all, delete-orphan")
+    documents = relationship("Document", back_populates="book", cascade="all, delete-orphan")

@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import BookList from './pages/BookList';
 import AddBook from './pages/AddBook';
+import EditBook from './pages/EditBook';
 import BookDetail from './pages/BookDetail';
 import Recommendations from './pages/Recommendations';
 import UserManagement from './pages/UserManagement';
@@ -52,6 +53,7 @@ function App(): ReactNode {
                 <Route path="/" element={<BookList />} />
                 <Route path="/books/new" element={<AddBook />} />
                 <Route path="/books/:id" element={<BookDetail />} />
+                <Route path="/books/:id/edit" element={<EditBook />} />
                 <Route path="/recommendations" element={<Recommendations />} />
                 <Route path="/documents" element={<DocumentManager />} />
                 <Route path="/chat" element={<ChatInterface />} />

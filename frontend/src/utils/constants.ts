@@ -1,0 +1,42 @@
+export const POPULAR_GENRES = [
+    "Action and Adventure",
+    "Art/Architecture",
+    "Biography",
+    "Business/Economics",
+    "Children's",
+    "Classics",
+    "Comics",
+    "Cookbooks",
+    "Crime",
+    "Diary",
+    "Dictionaries",
+    "Drama",
+    "Encyclopedia",
+    "Fantasy",
+    "Guide",
+    "Health/Fitness",
+    "History",
+    "Horror",
+    "Humor",
+    "Mystery",
+    "Philosophy",
+    "Poetry",
+    "Politics",
+    "Religion",
+    "Romance",
+    "Science",
+    "Science Fiction",
+    "Self Help",
+    "Short Stories",
+    "Suspense",
+    "Thriller",
+    "True Crime",
+    "Travel",
+    "Western",
+    "Young Adult"
+].sort();
+
+export const PUBLICATION_YEARS = Array.from(
+    { length: new Date().getFullYear() - 1900 + 1 },
+    (_, i) => (new Date().getFullYear() - i).toString()
+);

@@ -1,11 +1,15 @@
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.crud.crud_book import book as crud_book
 from app.api import deps
 from app.schemas.book import Book, BookCreate, BookUpdate
 from app.db.session import get_db
+from app.models.book import Book as BookModel
+from app.models.review import Review
+from app.services.llm_service import llm_service
 
 from app.services.recommendation_service import RecommendationService
 
@@ -42,8 +46,21 @@ async def create_book(
     current_user = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Create new book.
+    Create new book with duplicate check.
     """
+    # Check if book already exists
+    existing_book = await db.execute(
+        select(BookModel).where(
+            BookModel.title.ilike(book_in.title),
+            BookModel.author.ilike(book_in.author)
+        )
+    )
+    if existing_book.scalars().first():
+        raise HTTPException(
+            status_code=400,
+            detail=f"The book '{book_in.title}' by {book_in.author} already exists in the system."
+        )
+    
     book = await crud_book.create(db, obj_in=book_in)
     return book
 
