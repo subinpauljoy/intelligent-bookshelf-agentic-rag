@@ -12,7 +12,7 @@ dist/
 build/
 
 # Dependency directories
-venv/
+.venv/
 env/
 env3.*
 
