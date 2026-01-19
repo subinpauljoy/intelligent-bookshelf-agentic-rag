@@ -89,11 +89,16 @@ async def get_book_summary_ai(
         }
     
     avg_rating = sum([r.rating for r in reviews]) / len(reviews)
-    review_texts = [r.review_text for r in reviews if r.review_text]
     
-    review_summary = "No detailed reviews to summarize."
-    if review_texts:
-        review_summary = await llm_service.generate_review_summary(review_texts)
+    if book.ai_review_summary:
+        review_summary = book.ai_review_summary
+    else:
+        review_texts = [r.review_text for r in reviews if r.review_text]
+        review_summary = "No detailed reviews to summarize."
+        if review_texts:
+            review_summary = await llm_service.generate_review_summary(review_texts)
+            # Cache the summary
+            await crud_book.update(db, db_obj=book, obj_in={"ai_review_summary": review_summary})
         
     return {
         "summary": book.summary,

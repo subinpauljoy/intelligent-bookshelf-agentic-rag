@@ -1,5 +1,6 @@
 from typing import List
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.base import CRUDBase
 from app.models.review import Review
@@ -13,6 +14,7 @@ class CRUDReview(CRUDBase[Review, ReviewCreate, ReviewBase]):
     ) -> List[Review]:
         result = await db.execute(
             select(Review)
+            .options(selectinload(Review.user))
             .where(Review.book_id == book_id)
             .offset(skip)
             .limit(limit)

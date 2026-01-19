@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert, CircularProgress, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import InfoIcon from '@mui/icons-material/Info';
 import api from '../services/api';
 import { POPULAR_GENRES } from '../utils/constants';
 
 const EditBook = () => {
   const { id } = useParams();
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const { register, handleSubmit, setValue, watch, control } = useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -24,7 +26,8 @@ const EditBook = () => {
         setValue('title', book.title);
         setValue('author', book.author);
         setValue('genre', book.genre);
-        setValue('year_published', book.year_published);
+        // Set year as dayjs object for DatePicker
+        setValue('year_published', dayjs().year(book.year_published));
         setValue('summary', book.summary);
       } catch (err) {
         setError('Failed to fetch book details');
@@ -37,8 +40,15 @@ const EditBook = () => {
 
   const onSubmit = async (data: any) => {
     setSaveLoading(true);
+    
+    // Transform dayjs object back to year number
+    const payload = {
+        ...data,
+        year_published: data.year_published ? data.year_published.year() : new Date().getFullYear()
+    };
+
     try {
-      await api.put(`/books/${id}`, data);
+      await api.put(`/books/${id}`, payload);
       navigate(`/books/${id}`);
     } catch (err) {
       setError('Failed to update book');
@@ -100,7 +110,22 @@ const EditBook = () => {
             </Select>
           </FormControl>
 
-          <TextField margin="normal" fullWidth label="Year Published" type="number" {...register('year_published')} InputLabelProps={{ shrink: true }} />
+          <Controller
+            name="year_published"
+            control={control}
+            defaultValue={dayjs()}
+            render={({ field }) => (
+              <DatePicker
+                {...field}
+                label="Year Published"
+                views={['year']}
+                sx={{ width: '100%', mt: 2, mb: 1 }}
+                slotProps={{ textField: { required: true } }}
+                onChange={(date) => field.onChange(date)}
+              />
+            )}
+          />
+
           <TextField 
             margin="normal" 
             fullWidth 

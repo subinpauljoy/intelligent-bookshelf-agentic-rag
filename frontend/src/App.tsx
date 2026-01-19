@@ -14,6 +14,8 @@ import ChatInterface from './pages/ChatInterface';
 import Navigation from './components/Navigation';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import type { ReactElement, ReactNode } from 'react';
 
 const theme = createTheme();
@@ -38,30 +40,32 @@ function App(): ReactNode {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            
-            {/* Protected Routes wrapped in Layout */}
-            <Route element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }>
-                <Route path="/" element={<BookList />} />
-                <Route path="/books/new" element={<AddBook />} />
-                <Route path="/books/:id" element={<BookDetail />} />
-                <Route path="/books/:id/edit" element={<EditBook />} />
-                <Route path="/recommendations" element={<Recommendations />} />
-                <Route path="/documents" element={<DocumentManager />} />
-                <Route path="/chat" element={<ChatInterface />} />
-                <Route path="/admin/users" element={<UserManagement />} />
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              
+              {/* Protected Routes wrapped in Layout */}
+              <Route element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                  <Route path="/" element={<BookList />} />
+                  <Route path="/books/new" element={<AddBook />} />
+                  <Route path="/books/:id" element={<BookDetail />} />
+                  <Route path="/books/:id/edit" element={<EditBook />} />
+                  <Route path="/recommendations" element={<Recommendations />} />
+                  <Route path="/documents" element={<DocumentManager />} />
+                  <Route path="/chat" element={<ChatInterface />} />
+                  <Route path="/admin/users" element={<UserManagement />} />
+              </Route>
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

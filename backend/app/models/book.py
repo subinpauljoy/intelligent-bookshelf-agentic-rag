@@ -11,6 +11,7 @@ class Book(Base):
     genre = Column(String, index=True)
     year_published = Column(Integer)
     summary = Column(Text, nullable=True)
+    ai_review_summary = Column(Text, nullable=True)
 
     reviews = relationship("Review", back_populates="book", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="book", cascade="all, delete-orphan")
