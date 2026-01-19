@@ -40,4 +40,16 @@ class CRUDReview(CRUDBase[Review, ReviewCreate, ReviewBase]):
         await db.refresh(db_obj)
         return db_obj
 
+    async def remove(self, db: AsyncSession, *, id: int) -> Review:
+        result = await db.execute(
+            select(Review)
+            .options(selectinload(Review.user))
+            .where(Review.id == id)
+        )
+        obj = result.scalars().first()
+        if obj:
+            await db.delete(obj)
+            await db.commit()
+        return obj
+
 review = CRUDReview(Review)
